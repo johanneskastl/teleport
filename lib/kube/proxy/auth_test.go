@@ -17,9 +17,12 @@ limitations under the License.
 package proxy
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -157,8 +160,11 @@ users:
 - name: creds
 current-context: foo
 `))
-	require.NoError(t, err)
-	require.NoError(t, tmpFile.Close())
+
+	logger := utils.NewLoggerForTests()
+	buf := bytes.NewBuffer([]byte{})
+	logger.SetOutput(buf)
+	sc := bufio.NewScanner(buf)
 
 	tests := []struct {
 		desc               string
@@ -252,11 +258,26 @@ current-context: foo
 				},
 			},
 			assertErr: require.NoError,
+		}, {
+			desc:               "kubernetes_service, bad kube creds",
+			serviceType:        KubeService,
+			kubeconfigPath:     kubeconfigPath,
+			impersonationCheck: alwaysSucceeds,
+			assertErr: func(tt require.TestingT, err error, i ...interface{}) {
+				findErr := "failed to generate TLS config from kubeConfig. clientConfig"
+				for sc.Scan() {
+					if strings.Contains(sc.Text(), findErr) {
+						return
+					}
+				}
+				require.Fail(tt, "Failed to find error", "Failed to find error %q in the logs", findErr)
+			},
+			want: map[string]*kubeCreds{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
-			got, err := getKubeCreds(ctx, utils.NewLoggerForTests(), teleClusterName, "", tt.kubeconfigPath, tt.serviceType, tt.impersonationCheck)
+			got, err := getKubeCreds(ctx, logger, teleClusterName, "", tt.kubeconfigPath, tt.serviceType, tt.impersonationCheck)
 			tt.assertErr(t, err)
 			if err != nil {
 				return
