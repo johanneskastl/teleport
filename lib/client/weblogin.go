@@ -462,7 +462,7 @@ func GetWebConfig(ctx context.Context, proxyAddr string, insecure bool) (*ui.Web
 	text := bytes.TrimSuffix(bytes.Replace(body, []byte("var GRV_CONFIG = "), []byte(""), 1), []byte(";"))
 
 	cfg := ui.WebConfig{}
-	if err := json.Unmarshal([]byte(text), &cfg); err != nil {
+	if err := json.Unmarshal(text, &cfg); err != nil {
 		return nil, trace.Wrap(err)
 	}
 
