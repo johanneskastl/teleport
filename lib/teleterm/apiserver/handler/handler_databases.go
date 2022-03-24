@@ -19,7 +19,7 @@ import (
 	"sort"
 
 	api "github.com/gravitational/teleport/lib/teleterm/api/protogen/golang/v1"
-	"github.com/gravitational/teleport/lib/teleterm/daemon"
+	"github.com/gravitational/teleport/lib/teleterm/clusters"
 
 	"github.com/gravitational/trace"
 )
@@ -44,7 +44,7 @@ func (s *Handler) ListDatabases(ctx context.Context, req *api.ListDatabasesReque
 	return response, nil
 }
 
-func newAPIDatabase(db daemon.Database) *api.Database {
+func newAPIDatabase(db clusters.Database) *api.Database {
 	apiLabels := APILabels{}
 	for name, value := range db.GetAllLabels() {
 		apiLabels = append(apiLabels, &api.Label{

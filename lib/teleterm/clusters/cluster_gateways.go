@@ -24,8 +24,6 @@ import (
 	"github.com/gravitational/trace"
 )
 
-type Gateway = gateway.Gateway
-
 type CreateGatewayParams struct {
 	// TargetURI is the cluster resource URI
 	TargetURI string
@@ -36,7 +34,7 @@ type CreateGatewayParams struct {
 }
 
 // CreateGateway creates a gateway
-func (c *Cluster) CreateGateway(ctx context.Context, params CreateGatewayParams) (*Gateway, error) {
+func (c *Cluster) CreateGateway(ctx context.Context, params CreateGatewayParams) (*gateway.Gateway, error) {
 	db, err := c.GetDatabase(ctx, params.TargetURI)
 	if err != nil {
 		return nil, trace.Wrap(err)

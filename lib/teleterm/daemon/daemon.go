@@ -25,15 +25,6 @@ import (
 	"github.com/gravitational/trace"
 )
 
-type Gateway = gateway.Gateway
-type Cluster = clusters.Cluster
-type Database = clusters.Database
-type Server = clusters.Server
-type Kube = clusters.Kube
-type App = clusters.App
-type Leaf = clusters.LeafCluster
-type CreateGatewayParams = clusters.CreateGatewayParams
-
 // New creates an instance of Daemon service
 func New(cfg Config) (*Service, error) {
 	if err := cfg.CheckAndSetDefaults(); err != nil {
@@ -46,7 +37,7 @@ func New(cfg Config) (*Service, error) {
 }
 
 // ListRootClusters returns a list of root clusters
-func (s *Service) ListRootClusters(ctx context.Context) ([]*Cluster, error) {
+func (s *Service) ListRootClusters(ctx context.Context) ([]*clusters.Cluster, error) {
 	clusters, err := s.Storage.ReadAll()
 	if err != nil {
 		return nil, trace.Wrap(err)
@@ -56,7 +47,7 @@ func (s *Service) ListRootClusters(ctx context.Context) ([]*Cluster, error) {
 }
 
 // ListLeafClusters returns a list of leaf clusters
-func (s *Service) ListLeafClusters(ctx context.Context, uri string) ([]Leaf, error) {
+func (s *Service) ListLeafClusters(ctx context.Context, uri string) ([]clusters.LeafCluster, error) {
 	cluster, err := s.ResolveCluster(uri)
 	if err != nil {
 		return nil, trace.Wrap(err)
@@ -76,7 +67,7 @@ func (s *Service) ListLeafClusters(ctx context.Context, uri string) ([]Leaf, err
 }
 
 // AddCluster adds a cluster
-func (s *Service) AddCluster(ctx context.Context, webProxyAddress string) (*Cluster, error) {
+func (s *Service) AddCluster(ctx context.Context, webProxyAddress string) (*clusters.Cluster, error) {
 	cluster, err := s.Storage.Add(ctx, webProxyAddress)
 	if err != nil {
 		return nil, trace.Wrap(err)
@@ -106,7 +97,7 @@ func (s *Service) RemoveCluster(ctx context.Context, uri string) error {
 }
 
 // ResolveCluster resolves a cluster by URI
-func (s *Service) ResolveCluster(uri string) (*Cluster, error) {
+func (s *Service) ResolveCluster(uri string) (*clusters.Cluster, error) {
 	clusterURI, err := apiuri.ParseClusterURI(uri)
 	if err != nil {
 		return nil, trace.Wrap(err)
@@ -135,7 +126,7 @@ func (s *Service) ClusterLogout(ctx context.Context, uri string) error {
 }
 
 // CreateGateway creates a gateway to given targetURI
-func (s *Service) CreateGateway(ctx context.Context, params CreateGatewayParams) (*Gateway, error) {
+func (s *Service) CreateGateway(ctx context.Context, params clusters.CreateGatewayParams) (*gateway.Gateway, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -157,7 +148,7 @@ func (s *Service) CreateGateway(ctx context.Context, params CreateGatewayParams)
 }
 
 // ListServers returns cluster servers
-func (s *Service) ListServers(ctx context.Context, clusterURI string) ([]Server, error) {
+func (s *Service) ListServers(ctx context.Context, clusterURI string) ([]clusters.Server, error) {
 	cluster, err := s.ResolveCluster(clusterURI)
 	if err != nil {
 		return nil, trace.Wrap(err)
@@ -172,7 +163,7 @@ func (s *Service) ListServers(ctx context.Context, clusterURI string) ([]Server,
 }
 
 // ListServers returns cluster servers
-func (s *Service) ListApps(ctx context.Context, clusterURI string) ([]App, error) {
+func (s *Service) ListApps(ctx context.Context, clusterURI string) ([]clusters.App, error) {
 	cluster, err := s.ResolveCluster(clusterURI)
 	if err != nil {
 		return nil, trace.Wrap(err)
@@ -209,7 +200,7 @@ func (s *Service) RemoveGateway(ctx context.Context, gatewayURI string) error {
 }
 
 // ListKubes lists kubernetes clusters
-func (s *Service) ListKubes(ctx context.Context, uri string) ([]Kube, error) {
+func (s *Service) ListKubes(ctx context.Context, uri string) ([]clusters.Kube, error) {
 	cluster, err := s.ResolveCluster(uri)
 	if err != nil {
 		return nil, trace.Wrap(err)
@@ -224,7 +215,7 @@ func (s *Service) ListKubes(ctx context.Context, uri string) ([]Kube, error) {
 }
 
 // FindGateway finds a gateway by URI
-func (s *Service) FindGateway(gatewayURI string) (*Gateway, error) {
+func (s *Service) FindGateway(gatewayURI string) (*gateway.Gateway, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -238,12 +229,12 @@ func (s *Service) FindGateway(gatewayURI string) (*Gateway, error) {
 }
 
 // ListGateways lists gateways
-func (s *Service) ListGateways(ctx context.Context) ([]*Gateway, error) {
+func (s *Service) ListGateways(ctx context.Context) ([]*gateway.Gateway, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	// copy this slice to avoid race conditions when original slice gets modified
-	gateways := make([]*Gateway, len(s.gateways))
+	gateways := make([]*gateway.Gateway, len(s.gateways))
 	copy(gateways, s.gateways)
 	return gateways, nil
 }

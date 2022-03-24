@@ -19,7 +19,7 @@ import (
 	"sort"
 
 	api "github.com/gravitational/teleport/lib/teleterm/api/protogen/golang/v1"
-	"github.com/gravitational/teleport/lib/teleterm/daemon"
+	"github.com/gravitational/teleport/lib/teleterm/clusters"
 
 	"github.com/gravitational/trace"
 )
@@ -39,7 +39,7 @@ func (s *Handler) ListKubes(ctx context.Context, req *api.ListKubesRequest) (*ap
 	return response, nil
 }
 
-func newAPIKube(kube daemon.Kube) *api.Kube {
+func newAPIKube(kube clusters.Kube) *api.Kube {
 	apiLabels := APILabels{}
 	for name, value := range kube.StaticLabels {
 		apiLabels = append(apiLabels, &api.Label{

@@ -18,7 +18,7 @@ import (
 	"context"
 
 	api "github.com/gravitational/teleport/lib/teleterm/api/protogen/golang/v1"
-	"github.com/gravitational/teleport/lib/teleterm/daemon"
+	"github.com/gravitational/teleport/lib/teleterm/clusters"
 
 	"github.com/gravitational/trace"
 )
@@ -84,7 +84,7 @@ func (s *Handler) GetCluster(ctx context.Context, req *api.GetClusterRequest) (*
 	return newAPIRootCluster(cluster), nil
 }
 
-func newAPIRootCluster(cluster *daemon.Cluster) *api.Cluster {
+func newAPIRootCluster(cluster *clusters.Cluster) *api.Cluster {
 	loggedInUser := cluster.GetLoggedInUser()
 	return &api.Cluster{
 		Uri:       cluster.URI.String(),
@@ -98,7 +98,7 @@ func newAPIRootCluster(cluster *daemon.Cluster) *api.Cluster {
 	}
 }
 
-func newAPILeafCluster(leaf daemon.Leaf) *api.Cluster {
+func newAPILeafCluster(leaf clusters.LeafCluster) *api.Cluster {
 	return &api.Cluster{
 		Name:      leaf.Name,
 		Uri:       leaf.URI.String(),
