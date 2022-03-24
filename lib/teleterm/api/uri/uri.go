@@ -20,10 +20,11 @@ import (
 	"fmt"
 
 	"github.com/gravitational/trace"
+	"github.com/ucarion/urlpath"
 )
 
-var pathClusters = NewPath("/clusters/:cluster/*")
-var pathLeafClusters = NewPath("/clusters/:cluster/leaves/:leaf/*")
+var pathClusters = urlpath.New("/clusters/:cluster/*")
+var pathLeafClusters = urlpath.New("/clusters/:cluster/leaves/:leaf/*")
 
 // New creates an instance of ResourceURI
 func New(path string) ResourceURI {
