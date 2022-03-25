@@ -84,6 +84,8 @@ A few notes regarding the `<command>`:
 - The `<command>` will require `$@`, `$1`, etc. to reference the arguments
   provided to the alias command.
 
+### Examples
+
 Starting with a very simple example, suppose you're tired of typing `tsh login`
 every morning and want to alias it to something shorter e.g. `tsh l`:
 
@@ -109,13 +111,25 @@ aliases:
     "ssh": "tsh ssh -P $@"
 ```
 
-Note: to prevent infinite recursion, `tsh` will set an environment variable
-for the `exec.Command` indicating that it is being invoked as an alias. If
-this environment variable is detected, `tsh` won't attempt to expand the
-alias again. The environment variable will include specific commands that have
-already been expanded e.g. `TSH_ALIAS=login,ssh`. This will prevent other `login`
-commands from being expanded but will allow using aliases in other aliases (see
-below for an example).
+Note: command arguments will be resolved prior to invoking the alias. So in the
+example above, when a user runs `tsh ssh root@node1`, the alias command executed
+will be `tsh ssh -P root@node1`.
+
+### Environment variables
+
+Each alias invocation will set a few environment variables that can be consumed
+within the alias.
+
+To prevent infinite recursion, `TSH_ALIAS` variable will be set indicating the
+command is invoked as an alias. If it's detected, `tsh` won't attempt to expand
+the same command again. For example, `TSH_ALIAS=login`. This will prevent other
+`login` commands from being expanded but will allow using aliases in other
+aliases (see below for an example).
+
+Each alias will also set `TSH` environment variable to the path of the `tsh`
+binary that invoked the alias.
+
+### More examples
 
 An alias can also define a custom subcommand that combines multiple commands.
 The following alias will connect to a node within a specific leaf cluster
@@ -137,9 +151,9 @@ Multiple aliases can be defined in the config and can reference each other:
 
 ```yaml
 aliases:
-    "login": "tsh login --auth=local --user=alice $@"
-    "ssh": "tsh ssh -P $@"
-    "connect": "bash -c 'tsh login $1 && tsh ssh $2'"
+    "login": "$TSH login --auth=local --user=alice $@"
+    "ssh": "$TSH ssh -P $@"
+    "connect": "bash -c '$TSH login $1 && $TSH ssh $2'"
 ```
 
 In this example, `tsh login` and `tsh ssh` will use the aliases when invoked
