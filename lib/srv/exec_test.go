@@ -44,6 +44,7 @@ import (
 	"github.com/gravitational/teleport/lib/backend/lite"
 	"github.com/gravitational/teleport/lib/bpf"
 	"github.com/gravitational/teleport/lib/events"
+	"github.com/gravitational/teleport/lib/eventstest"
 	"github.com/gravitational/teleport/lib/fixtures"
 	"github.com/gravitational/teleport/lib/pam"
 	restricted "github.com/gravitational/teleport/lib/restrictedsession"
@@ -435,7 +436,7 @@ func (f *fakeTerminal) SetTermType(string) {
 // fakeServer is stub for tests
 type fakeServer struct {
 	auditLog events.IAuditLog
-	events.MockEmitter
+	eventstest.MockEmitter
 	accessPoint AccessPoint
 	id          string
 }

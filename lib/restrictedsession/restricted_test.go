@@ -134,7 +134,7 @@ type Suite struct {
 	srcAddrs         map[int]string
 
 	// Audit events emitted by us
-	emitter             events.MockEmitter
+	emitter             eventstest.MockEmitter
 	expectedAuditEvents []apievents.AuditEvent
 }
 
