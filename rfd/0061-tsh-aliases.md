@@ -158,3 +158,8 @@ aliases:
 
 In this example, `tsh login` and `tsh ssh` will use the aliases when invoked
 as a part of the "connect" command.
+
+## Future work
+
+When we have `bash`/`zsh` auto-completion, it should take aliased commands into
+account as well. For reference, `git` autocompletion supports it.
