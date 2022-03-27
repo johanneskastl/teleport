@@ -3547,17 +3547,18 @@ func playSession(sessionEvents []events.EventFields, stream []byte) error {
 	)
 	// playback control goroutine
 	go func() {
-		defer player.Stop()
 		var key [1]byte
 		for {
 			_, err := term.Stdin().Read(key[:])
 			if err != nil {
 				errorCh <- err
+				// TODO(zmb3) request stop
 				return
 			}
 			switch key[0] {
 			// Ctrl+C or Ctrl+D
 			case keyCtrlC, keyCtrlD:
+				// TODO(zmb3): request stop
 				return
 			// Space key
 			case keySpace:
